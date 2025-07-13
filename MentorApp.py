@@ -3,52 +3,172 @@ from typing import Tuple
 import pandas as pd
 import datetime
 import openai
-import os
 
+# Define all categories with keywords and correct email routing
 CATEGORY_KEYWORDS = {
+    "Bonafide Certificate": {
+        "keywords": ["bonafide", "education loan", "passport", "scholarship", "higher studies", "course continuing"],
+        "email": "compliance.cse@kiit.ac.in",
+        "url": None
+    },
     "Railway Concession Pass": {
-        "keywords": ["railway pass", "railway concession"],
+        "keywords": ["railway pass", "train concession"],
         "email": "compliance.cse@kiit.ac.in",
         "url": None
     },
-    "Head Signature on Application Form": {
-        "keywords": ["gate form", "cat form", "application signature"],
+    "Grade Reports / Certificates": {
+        "keywords": ["grade report", "provisional degree", "degree certificate", "conduct certificate", "college leaving"],
         "email": "compliance.cse@kiit.ac.in",
         "url": None
     },
-    "Email Group ID Issue": {
-        "keywords": ["email group id", "not receiving emails"],
+    "Open Electives or Dept Electives": {
+        "keywords": ["open elective", "department elective"],
+        "email": "compliance.cse@kiit.ac.in",
+        "url": None
+    },
+    "Rank / No Backlog Certificate": {
+        "keywords": ["rank certificate", "no backlog certificate"],
+        "email": "compliance.cse@kiit.ac.in",
+        "url": None
+    },
+    "GATE / CAT Signature": {
+        "keywords": ["gate signature", "cat signature"],
+        "email": "compliance.cse@kiit.ac.in",
+        "url": None
+    },
+    "Registration Card": {
+        "keywords": ["registration card"],
+        "email": "Not Available - Contact Mrs. Tunalata Nayak (8144967820)",
+        "url": None
+    },
+    "Marks/Grades Discrepancy (2022-23, M.Tech, PhD)": {
+        "keywords": ["marks", "grades", "answer sheet discrepancy", "2022", "2023", "mtech", "phd"],
+        "email": "acoe.cese@kiit.ac.in",
+        "url": None
+    },
+    "Marks/Grades Discrepancy (2024-25)": {
+        "keywords": ["marks", "grades", "answer sheet discrepancy", "2024", "2025"],
+        "email": "acoe.csit@kiit.ac.in",
+        "url": None
+    },
+    "Correction / Scholarship": {
+        "keywords": ["correction", "dob", "name", "address change", "scholarship"],
+        "email": "swapna.mohanty@kiit.ac.in",
+        "url": None
+    },
+    "Fee Extension": {
+        "keywords": ["fee extension", "academic fee", "hostel fee"],
+        "email": "director.admission@kiit.ac.in",
+        "url": None
+    },
+    "Demand Letter for Loan": {
+        "keywords": ["demand letter", "loan"],
+        "email": "admission@kiit.ac.in",
+        "url": None
+    },
+    "Laptop Issues": {
+        "keywords": ["laptop", "laptop delivery", "laptop technical"],
+        "email": "laptop.service@kiit.ac.in",
+        "url": None
+    },
+    "Email Group Issues": {
+        "keywords": ["group email", "not receiving mail"],
         "email": "helpdesk@kiit.ac.in",
         "url": None
     },
-    "Library Access": {
-        "keywords": ["library access", "library book", "library fine"],
+    "Library Issues": {
+        "keywords": ["library", "library access", "library books"],
         "email": "beda_sahoo@kiit.ac.in",
         "url": None
     },
-    "Fee & SAP Issues": {
-        "keywords": ["fee discrepancy", "sap update", "payment issue"],
+    "Fee & SAP": {
+        "keywords": ["fee", "sap update", "fee mismatch"],
         "email": "manoj.meher@kiit.ac.in",
         "url": None
     },
-    "Student Activity Centre": {
-        "keywords": ["student club", "extracurricular activity"],
-        "email": "studentssupport@kiit.ac.in",
+    "Hostel Issues": {
+        "keywords": ["hostel", "room", "allotment", "accommodation", "kp25"],
+        "email": "hostel@kiit.ac.in",
+        "url": None
+    },
+    "Placement / Internship": {
+        "keywords": ["placement", "internship", "no objection", "training"],
+        "email": "tnp.scs@kiit.ac.in",
+        "url": None
+    },
+    "Sports": {
+        "keywords": ["sports", "gym", "fitness", "recreational"],
+        "email": "sports.kiit@gmail.com",
+        "url": "https://kiit.ac.in/campuslife/sports/"
+    },
+    "KSAC": {
+        "keywords": ["ksac", "student activity", "club"],
+        "email": "shyam.behura@kids.ac.in",
         "url": "https://ksac.kiit.ac.in/"
     },
-    "Grievance Helpdesk": {
-        "keywords": ["grievance", "student complaint"],
-        "email": "grievance.psp@kiit.ac.in",
-        "url": "https://kiit.ac.in/grievance/"
+    "Grade Sheet Download": {
+        "keywords": ["grade sheet", "download"],
+        "email": "slcm.kiit@kiit.ac.in",
+        "url": None
     },
-    "Guest House Booking": {
-        "keywords": ["guest house", "stay request"],
+    "Guest House": {
+        "keywords": ["guest house"],
         "email": "kiitguesthouse@kiit.ac.in",
         "url": None
     },
+    "Mentor Info": {
+        "keywords": ["mentor", "sap"],
+        "email": None,
+        "url": "https://kiit.ac.in/sap/know-your-mentor/"
+    },
+    "Counselling": {
+        "keywords": ["counselling", "support", "anxiety", "depression", "stress"],
+        "email": "student.counselling@kiit.ac.in",
+        "url": "https://kiit.ac.in/student-counselling/"
+    },
+    "Cyber Helpdesk": {
+        "keywords": ["cyber", "phishing", "scam"],
+        "email": "cyber.helpline@kiit.ac.in",
+        "url": None
+    },
+    "SAP Helpdesk": {
+        "keywords": ["sap help", "student portal"],
+        "email": "helpdesksap.eam@kiit.ac.in",
+        "url": None
+    },
+    "Career Placement": {
+        "keywords": ["career", "placement"],
+        "email": "placement@kiit.ac.in",
+        "url": None
+    },
+    "NCC / NSS / Red Cross": {
+        "keywords": ["ncc", "nss", "red cross", "community"],
+        "email": "kiit.nss@kiit.ac.in",
+        "url": None
+    },
+    "Student Support": {
+        "keywords": ["club", "student support"],
+        "email": "studentssupport@kiit.ac.in",
+        "url": "https://kiit.ac.in/students/"
+    },
+    "Grievance Redressal": {
+        "keywords": ["grievance", "complaint"],
+        "email": "grievance.psp@kiit.ac.in",
+        "url": "https://kiit.ac.in/grievance/"
+    },
+    "Internal Complaints": {
+        "keywords": ["sexual harassment", "icc"],
+        "email": None,
+        "url": "https://kiit.ac.in/internal-complaint-committee/"
+    },
+    "Anti-Ragging": {
+        "keywords": ["ragging"],
+        "email": None,
+        "url": "https://kiit.ac.in/antiragging/"
+    },
     "Other": {
         "keywords": [],
-        "email": "deanoffice@kiit.ac.in",
+        "email": "Not listed",
         "url": None
     }
 }
@@ -82,6 +202,7 @@ def classify_query(query: str) -> Tuple[str, str, str, str]:
 
         return best_category, email, url, matched_keywords
 
+    # GPT fallback
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     categories = list(CATEGORY_KEYWORDS.keys())
     try:
@@ -96,8 +217,9 @@ def classify_query(query: str) -> Tuple[str, str, str, str]:
         best_category = response["choices"][0]["message"]["content"].strip()
         if best_category not in CATEGORY_KEYWORDS:
             best_category = "Other"
-    except Exception:
-        st.warning("Semantic fallback failed. Using default.")
+    except Exception as e:
+        st.warning("⚠️ Semantic fallback failed. Using default.")
+        st.error(f"OpenAI error: {str(e)}")
         best_category = "Other"
 
     email = CATEGORY_KEYWORDS[best_category].get("email", "Not listed")
@@ -116,7 +238,7 @@ After reviewing your query, it is recommended that you contact the respective de
 
 Feel free to let me know if you need any further help.
 
-Regards,
+Regards,  
 Mentor
 """
 
@@ -160,7 +282,7 @@ def main():
             if email:
                 st.info(f"📧 Email ID: `{email}`")
             if url:
-                st.markdown(f"🔗 [Useful Link]({url})" if url.startswith("http") else f"📞 Contact Info: {url}")
+                st.markdown(f"🔗 [Useful Link]({url})" if url and url.startswith("http") else f"📞 Contact Info: {url}")
             st.subheader("📩 Ready-to-Copy Reply Email")
             st.text_area("Email Draft:", generate_email_to_student(query, category, email), height=200)
         else:
